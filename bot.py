@@ -5,7 +5,6 @@ from discord import app_commands
 class StatusBot(commands.Bot):
     def __init__(self):
         super().__init__(command_prefix="/", intents=discord.Intents.default())
-        self.tree = app_commands.CommandTree(self)
 
     async def setup_hook(self):
         self.tree.add_command(status)
