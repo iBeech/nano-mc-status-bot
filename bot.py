@@ -1,6 +1,17 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+import os
+import requests
+from mcstatus import JavaServer
+
+TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+BASE_DOMAIN = os.getenv("BASE_DOMAIN", "nanobattlestation.co.uk")
+PTERO_API_KEY = os.getenv("PTERO_API_KEY")
+PTERO_API_URL = os.getenv("PTERO_API_URL")
+
+if not TOKEN:
+    raise ValueError("DISCORD_BOT_TOKEN environment variable is not set.")
 
 class StatusBot(commands.Bot):
     def __init__(self):
