@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  nano-mc-status-bot:
+    image: ibeech/nano-mc-status-bot:latest
+    restart: unless-stopped
+    environment:
+      - DISCORD_BOT_TOKEN=your-discord-token
+      - BASE_DOMAIN=nanobattlestation.co.uk
+      - PTERO_API_URL=https://panel.example.com/api/application
+      - PTERO_API_KEY=your-optional-ptero-api-key
