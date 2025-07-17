@@ -1,32 +1,22 @@
-# nano-mc-status-bot: Discord bot to fetch live Minecraft server status via subdomain
-
-"""
-nano-mc-status-bot is a lightweight, Docker-friendly Discord bot that allows users to check the real-time status of their Minecraft Java servers using custom subdomains (e.g., mc1.nanobattlestation.co.uk).
-
-Features:
-- Simple `/status <subdomain>` command
-- Fast ping + player count reporting
-- Optional Pterodactyl API integration for detailed server info (RAM, state, etc.)
-- Skips Pterodactyl queries if no API key is provided
-- Easily configurable via environment variables for Docker/Compose setups
-"""
-
 import discord
 from discord.ext import commands
-from mcstatus import JavaServer
-import requests
-import os
+from discord import app_commands
 
-TOKEN = os.getenv("DISCORD_BOT_TOKEN")
-BASE_DOMAIN = os.getenv("BASE_DOMAIN", "nanobattlestation.co.uk")
-PTERO_API_URL = os.getenv("PTERO_API_URL")  # e.g., https://panel.example.com/api/application
-PTERO_API_KEY = os.getenv("PTERO_API_KEY")  # Optional, if Pterodactyl integration is desired
+class StatusBot(commands.Bot):
+    def __init__(self):
+        super().__init__(command_prefix="/", intents=discord.Intents.default())
+        self.tree = app_commands.CommandTree(self)
 
-intents = discord.Intents.default()
-bot = commands.Bot(command_prefix="/", intents=intents)
+    async def setup_hook(self):
+        self.tree.add_command(status)
+        await self.tree.sync()  # Sync commands to Discord
 
-@bot.command(name="status")
-async def status(ctx, subdomain: str):
+bot = StatusBot()
+
+@discord.app_commands.command(name="status", description="Check the status of your Minecraft server")
+@app_commands.describe(subdomain="Your subdomain, e.g. mc1")
+async def status(interaction: discord.Interaction, subdomain: str):
+    # Your existing status command logic, but use interaction.response.send_message(...)
     fqdn = f"{subdomain}.{BASE_DOMAIN}"
     message = []
 
@@ -50,10 +40,10 @@ async def status(ctx, subdomain: str):
                         break
             else:
                 message.append("⚠️ Pterodactyl API error: could not fetch server data.")
-        except Exception as e:
+        except Exception:
             message.append("⚠️ Failed to connect to Pterodactyl API.")
 
-    await ctx.send("\n".join(message))
+    await interaction.response.send_message("\n".join(message))
 
 @bot.event
 async def on_ready():
